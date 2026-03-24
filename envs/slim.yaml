@@ -14,9 +14,7 @@ dependencies:
       - scipy 
       - matplotlib 
       - cython 
-      - ipympl
       - ipython 
       - setuptools
-      - jupyter
       - pyklu
       - nafflib
