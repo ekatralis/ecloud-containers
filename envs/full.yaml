@@ -1,0 +1,21 @@
+name: xsuite-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14
+  - meson
+  - h5py
+  - pytest
+  - pytest-mock
+  - cmake
+  - pip
+  - pip:
+      - numpy 
+      - scipy 
+      - matplotlib 
+      - cython 
+      - ipympl
+      - ipython 
+      - jupyter
+      - pyklu
+      - nafflib

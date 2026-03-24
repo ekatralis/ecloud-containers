@@ -1,0 +1,84 @@
+FROM ubuntu:24.04
+
+ARG UID=2020
+ARG GID=2020
+ARG FLAVOR=full
+ARG VERSION=unknown
+
+ENV ECLOUD_CONTAINER_VERSION="${VERSION}-${FLAVOR}-cpu"
+
+RUN groupadd -g ${GID} eclouduser \
+ && useradd -m -u ${UID} -g ${GID} -s /bin/bash eclouduser
+
+# Build deps (keep only what you truly need to build wheels / compile)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget bzip2 ca-certificates curl git \
+    gcc g++ gfortran build-essential \
+    binutils make pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN chown -R eclouduser:eclouduser /home/eclouduser && \
+    chmod 2775 /home/eclouduser && \
+    umask 002 && \
+    mkdir -p /home/eclouduser/.cache && \
+    chown -R eclouduser:eclouduser /home/eclouduser/.cache && \
+    mkdir -p /home/eclouduser/.local/bin && \
+    chown -R eclouduser:eclouduser /home/eclouduser/.local
+
+USER eclouduser
+WORKDIR /home/eclouduser
+
+ENV ENV_PREFIX=/home/eclouduser/ecloud-env
+# micromamba needs a “root prefix” for caches / pkgs (can be small, but must exist)
+ENV MAMBA_ROOT_PREFIX=/home/eclouduser/.micromamba
+
+# put the env first on PATH (ensure that we can run commands directly inside env)
+ENV PATH=$ENV_PREFIX/bin:/home/eclouduser/.local/bin:$PATH \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # Ensure default shell is bash and that we are always inside the micromamba environment
+    SHELL=/bin/bash \
+    BASH_ENV=/home/eclouduser/.bash_env_mamba
+
+# install micromamba (arch-aware) + create required dirs
+RUN set -eux; \
+    umask 002; \
+    ARCH="$(uname -m)"; \
+    case "$ARCH" in \
+        x86_64|amd64)  MM_ARCH="64" ;; \
+        aarch64|arm64) MM_ARCH="aarch64" ;; \
+        *) echo "Unsupported arch: $ARCH"; exit 1 ;; \
+    esac; \
+    mkdir -p "$MAMBA_ROOT_PREFIX" "$(dirname "$ENV_PREFIX")"; \
+    wget -qO- "https://micro.mamba.pm/api/micromamba/linux-${MM_ARCH}/latest" \
+      | tar -xj -C /home/eclouduser/.local/bin --strip-components=1 bin/micromamba; \
+    /home/eclouduser/.local/bin/micromamba --version 
+
+COPY --chown=eclouduser:eclouduser ./envs/${FLAVOR}.yaml /tmp/env.yaml
+
+# Create env directly at prefix
+RUN set -eux; \
+    umask 002; \
+    PIP_VERBOSE=1 micromamba create -y -p "$ENV_PREFIX" -f /tmp/env.yaml && \
+    micromamba clean -a -f -y && \
+    # extra trimming
+    find "$ENV_PREFIX" -type f -name '*.a' -delete && \
+    find "$ENV_PREFIX" -type f -name '*.pyc' -delete && \
+    find "$ENV_PREFIX" -type d -name '__pycache__' -prune -exec rm -rf {} + && \
+    rm -f /tmp/env.yaml && \
+    printf '%s\n' \
+        'eval "$(micromamba shell hook --shell bash)"' \
+        'micromamba activate /home/eclouduser/ecloud-env >/dev/null 2>&1 || true' \
+        > /home/eclouduser/.bash_env_mamba \
+    && echo 'source /home/eclouduser/.bash_env_mamba' >> /home/eclouduser/.bashrc
+
+COPY --chown=eclouduser:eclouduser ./setup_pycomplete.sh /home/eclouduser/setup_pycomplete.sh
+
+RUN set -eux; \
+    umask 002; \
+    mkdir -p /home/eclouduser/PyCOMPLETE && \
+    cd /home/eclouduser/PyCOMPLETE && \
+    /home/eclouduser/setup_pycomplete.sh && \
+    site_packages="$(micromamba run -p "$ENV_PREFIX" python -c 'import site; paths = site.getsitepackages(); print(paths[0] if paths else "")')" && \
+    echo "/home/eclouduser/PyCOMPLETE" > "$site_packages/local-packages.pth" && \
+    rm -f /home/eclouduser/setup_pycomplete.sh
