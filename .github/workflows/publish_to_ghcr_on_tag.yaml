@@ -16,8 +16,8 @@ jobs:
       matrix:
         include:
           # Build only full image for now
-          - name: full-cpu
-            flavor: full
+          - name: slim-cpu
+            flavor: slim
             image: ghcr.io/ekatralis/ecloud-containers
             dockerfile: Dockerfile.cpu
             platforms: linux/amd64,linux/arm64
