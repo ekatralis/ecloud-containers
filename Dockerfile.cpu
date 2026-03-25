@@ -80,7 +80,8 @@ RUN set -eux; \
     cd /home/eclouduser/PyCOMPLETE && \
     /home/eclouduser/setup_pycomplete.sh && \
     site_packages="$(micromamba run -p "$ENV_PREFIX" python -c 'import site; paths = site.getsitepackages(); print(paths[0] if paths else "")')" && \
-    echo "/home/eclouduser/PyCOMPLETE" > "$site_packages/local-packages.pth" && \
+    echo "/home/eclouduser/PyCOMPLETE" >> "$site_packages/local-packages.pth" && \
+    echo "/home/eclouduser/PyCOMPLETE/PyHEADTAIL" >> "$site_packages/local-packages.pth" && \
     rm -f /home/eclouduser/setup_pycomplete.sh
 
 FROM ubuntu:24.04 as runtime
