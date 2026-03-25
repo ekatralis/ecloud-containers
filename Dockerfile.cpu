@@ -107,7 +107,11 @@ RUN chown -R eclouduser:eclouduser /home/eclouduser && \
     mkdir -p /home/eclouduser/.cache && \
     chown -R eclouduser:eclouduser /home/eclouduser/.cache && \
     mkdir -p /home/eclouduser/.local/bin && \
-    chown -R eclouduser:eclouduser /home/eclouduser/.local
+    chown -R eclouduser:eclouduser /home/eclouduser/.local && \
+    mkdir -p /home/eclouduser/ecloud-env && \
+    chown -R eclouduser:eclouduser /home/eclouduser/ecloud-env && \
+    mkdir -p /home/eclouduser/PyCOMPLETE && \
+    chown -R eclouduser:eclouduser /home/eclouduser/PyCOMPLETE
 
 USER eclouduser
 WORKDIR /home/eclouduser
