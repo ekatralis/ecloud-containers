@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.14
+  - python-gil
   - meson
   - h5py
   - pytest
