@@ -9,6 +9,7 @@ dependencies:
   - pytest
   - pytest-mock
   - cmake
+  - openmpi==4.1.1
   - mpi4py
   - pip
   - pip:
