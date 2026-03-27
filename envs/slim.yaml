@@ -9,9 +9,9 @@ dependencies:
   - pytest
   - pytest-mock
   - cmake
-  - mpi4py
   - pip
   - pip:
+      - mpi4py
       - numpy 
       - scipy 
       - matplotlib 

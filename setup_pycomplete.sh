@@ -27,3 +27,7 @@ cd ..
 cd PyPARIS
 git switch prevent_infinite_hangs_in_multiproc
 cd ..
+
+cd PyPARIS_sim_class
+git switch resubmit_from_container
+cd ..
