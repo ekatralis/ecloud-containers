@@ -2,7 +2,7 @@ name: xsuite-env
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.14
   - meson
   - h5py
   - pytest
@@ -17,5 +17,3 @@ dependencies:
       - ipython 
       - setuptools
       - pyklu
-      - nafflib
-      - mpi4py
