@@ -1,2 +1,4 @@
 *.DS_Store*
 PyECLOUD/
+*.tar
+*.sif
