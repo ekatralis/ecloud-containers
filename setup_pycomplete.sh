@@ -9,6 +9,7 @@ git clone https://github.com/ekatralis/PyPARIS_sim_class
 git clone https://github.com/pycomplete/PyPARIS_CoupledBunch_sim_class
 
 cd PyECLOUD
+git checkout dc2c97d6a3ece64b324f6fa4267c9e04ce654ccb
 ./setup_pyecloud
 rm -rf ./testing
 cd ..
