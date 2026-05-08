@@ -195,6 +195,15 @@ Get full history and paths of a failed job:
 ```bash
 condor_history 11490351.5607 -long
 ```
+## Untarring output files
+Once the simulations have finished running, the archives have to be extracted so that the simulation data can be analyzed. This provides a good opportunity to check for missing output files, unfinished simulations or other problems that could have occured during the job's run. We can do that using the `postjob_untar_and_check.sh` script on a system that has EOS FUSE mounted. For large batches, the script can take a long time to run, as such it is recommended to run it from a `tmux` or `screen` environment to ensure that the connection to that remote node doesn't time out.
+
+Short overview of the script:
+- Reads the `sims.txt` file 
+- Untars output file in that directory
+- Checks that `output.mat` exists
+- Checks that the progress file is not below 0.9 (job crashed/finished early)
+- If it detects a failed job it prints the filepath in a `failed_sims.txt` file
 
 ## Transferring files from EOS
 Running large simulation campaigns will often produce very large amounts of data (even hundreds of GBs). While running directly from the EOS fuse mount is a possibility, it is often faster to copy the simulation outputs locally to run the analysis scripts. This can be done via a FUSE mount or SSH connection using rsync/cp or many different methods. The best method to copy files from EOS is actually using the `xrdcp` plugin using parallel streams:
