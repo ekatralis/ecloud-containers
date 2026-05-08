@@ -1,10 +1,24 @@
 # Running efficient simulations on HTCondor using containers
+
 In this page, we explain an efficient way to run simulations on CERN's computing clusters using containers. We will use the example provided in this repository under:
 
 ```text
 LHC_6.8TeV_Arcs_Filling_Pattern_Scan/
 ```
 This example was used to run a **15000** concurrent simulations in **under 24h**, without encountering any rate limiting or running into storage space issues from using AFS.
+
+## Table of contents
+
+- [General setup](#general-setup)
+- [The Setup](#the-setup)
+- [The shared job files](#the-shared-job-files)
+- [Generating the simulation inputs](#generating-the-simulation-inputs)
+- [The job script](#the-job-script)
+- [The submission script](#the-submission-script)
+- [Useful commands](#useful-commands)
+- [Untarring output files](#untarring-output-files)
+- [Transferring files from EOS](#transferring-files-from-eos)
+
 ## General setup
 Some general technical details which explain why our job submission setup:
 - AFS is a (somewhat legacy) shared filesystem, with more limited resources  &rarr; We should avoid using it as much as possible
