@@ -53,6 +53,11 @@ while IFS= read -r relpath; do
         fi
     fi
 
+    python -c "import os; import scipy.io; mat = scipy.io.loadmat('$output_mat'); print(mat.keys())" > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        failed=1
+    fi
+
     if [[ "$failed" -eq 1 ]]; then
         echo "$simdir" >> "$FAILED_LIST"
     else
