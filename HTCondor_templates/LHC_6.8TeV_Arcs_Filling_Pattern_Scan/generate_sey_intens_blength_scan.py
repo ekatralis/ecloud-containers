@@ -11,7 +11,7 @@ def main(test_folder,default_inputs_folder,folder_prefix="",jobs_fname="jobs.txt
         os.remove(jobs_file)
     
     sey_vals = np.arange(1.0,1.61,0.05).round(2)
-    intensities = np.arange(0.2,2.01,0.1).round(1)
+    intensities = np.arange(0.2,2.31,0.1).round(1)
     b_lengths = np.arange(1.0,1.41,0.1).round(1)
     for b_length in b_lengths:
         for sey_val in sey_vals:
