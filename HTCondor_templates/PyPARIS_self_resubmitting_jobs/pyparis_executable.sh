@@ -3,12 +3,14 @@
 set -uo pipefail
 
 ROOT_URL="root://eosproject-e.cern.ch/"
-EOS_PATH="/eos/project/e/ecloud-simulations/ekatrali/test_resubmit/"
+EOS_PATH="/eos/project/e/ecloud-simulations/ekatrali/test_pyparis_resubmit/chroma_00_eldens_1.00e+13/"
 SIM_PATH="$EOS_PATH"
-# CONTAINER_PATH="/cvmfs/"
-# JOB_PWD="$_CONDOR_SCRATCH_DIR"
-CONTAINER_PATH="/cvmfs/"
+CONTAINER_PATH="/cvmfs/unpacked.cern.ch/ghcr.io/ekatralis/ecloud-containers:latest/"
 JOB_PWD="$_CONDOR_SCRATCH_DIR"
+
+# Ensure EOS_PATH and SIM_PATH is consistent with trailing slash for later path manipulations
+EOS_PATH="${EOS_PATH%/}/"
+SIM_PATH="${SIM_PATH%/}/"
 
 xrdcp_opts=(--retry 3)
 
@@ -27,6 +29,8 @@ transfer_inputs() (
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}multigrid_config_dip.txt" ./
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}sim_param.pkl" ./
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}envinfo.txt" ./
+		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}stdout.txt" ./
+		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}stderr.txt" ./
 	else
 		echo "No simulation status file found. Initializing simulation..."
 	fi
@@ -66,10 +70,12 @@ transfer_outputs() (
 	
 )
 
+transfer_inputs
+transfer_status=$?
 
-if ! transfer_inputs; then
-	echo "[JOB ERROR]: Input file transfer failed"
-	exit 1
+if (( transfer_status != 0 )); then
+    echo "[JOB ERROR]: Input transfer failed"
+    exit 1
 fi
 
 apptainer exec  --env PYTHONNOUSERSITE=1 \
@@ -78,10 +84,21 @@ apptainer exec  --env PYTHONNOUSERSITE=1 \
 				python -m PyPARIS.multiprocexec -n 8 sim_class=PyPARIS_sim_class.Simulation.Simulation \
 				>> stdout.txt 2>> stderr.txt
 script_exit=$?
+echo "$script_exit"
 
-if ! transfer_outputs; then
-	echo "[JOB ERROR]: Output file transfer failed"
-	exit 1
+if (( script_exit == 0 || script_exit == 177 )); then
+    transfer_outputs
+    transfer_status=$?
+
+    if (( transfer_status != 0 )); then
+        echo "[JOB ERROR]: Output transfer failed. Transferring stdout and stderr logs for debugging."
+		xrdcp "${xrdcp_opts[@]}" -f "./stdout.txt" "${ROOT_URL}${SIM_PATH}"
+		xrdcp "${xrdcp_opts[@]}" -f "./stderr.txt" "${ROOT_URL}${SIM_PATH}"
+
+        exit 1
+    fi
+else
+    echo "[JOB ERROR]: Simulation failed with exit code ${script_exit}"
 fi
 
 exit "$script_exit"
