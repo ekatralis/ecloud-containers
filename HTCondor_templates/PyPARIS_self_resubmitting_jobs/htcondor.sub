@@ -1,0 +1,17 @@
+executable              = executable.sh
+arguments               = ""
+output 			= htcondor.$(ClusterId).$(ProcId).$(NumJobStarts).out
+error  			= htcondor.$(ClusterId).$(ProcId).$(NumJobStarts).err
+log                     = log.$(ClusterId)
+should_transfer_files   = YES
+transfer_input_files    = ./increment.sh
+output_destination      = root://eosproject-e.cern.ch//eos/project/e/ecloud-simulations/ekatrali/test_resubmit
+when_to_transfer_output = ON_EXIT
+transfer_output_files   = counter.txt
+MY.XRDCP_CREATE_DIR	= true
+
+success_exit_code = 0
+retry_until = ExitCode != 177
+max_retries = 1500
+
+queue
