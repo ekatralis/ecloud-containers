@@ -25,8 +25,12 @@ transfer_inputs() (
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}slice_evolution_${part}.h5" ./
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}bunch_status_part${part}.h5" ./
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}pyparislog.txt" ./
-		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}multigrid_config_dip.pkl" ./
-		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}multigrid_config_dip.txt" ./
+		if xrdfs "$ROOT_URL" stat "${SIM_PATH}multigrid_config_dip.pkl" >/dev/null 2>&1; then
+			xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}multigrid_config_dip.pkl" ./
+		fi
+		if xrdfs "$ROOT_URL" stat "${SIM_PATH}multigrid_config_dip.txt" >/dev/null 2>&1; then 
+			xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}multigrid_config_dip.txt" ./
+		fi
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}sim_param.pkl" ./
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}envinfo.txt" ./
 		xrdcp "${xrdcp_opts[@]}" "${ROOT_URL}${SIM_PATH}stdout.txt" ./
@@ -55,13 +59,17 @@ transfer_outputs() (
 	xrdcp "${xrdcp_opts[@]}" -f "./sim_param.pkl" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./stdout.txt" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./stderr.txt" "${ROOT_URL}${SIM_PATH}"
-	xrdcp "${xrdcp_opts[@]}" -f "./multigrid_config_dip.pkl" "${ROOT_URL}${SIM_PATH}"
-	xrdcp "${xrdcp_opts[@]}" -f "./multigrid_config_dip.txt" "${ROOT_URL}${SIM_PATH}"
+	if [[ -f "multigrid_config_dip.pkl" ]]; then
+		xrdcp "${xrdcp_opts[@]}" -f "./multigrid_config_dip.pkl" "${ROOT_URL}${SIM_PATH}"
+	fi
+	if [[ -f "multigrid_config_dip.txt" ]]; then
+		xrdcp "${xrdcp_opts[@]}" -f "./multigrid_config_dip.txt" "${ROOT_URL}${SIM_PATH}"
+	fi
 	xrdcp "${xrdcp_opts[@]}" -f "./envinfo.txt" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./simulation_status.sta" "${ROOT_URL}${SIM_PATH}"
 
 	
-	if (( part_num > 1 )); then
+	if (( part_num >= 1 )); then
 		prev_part=$(printf "%02d" $((part_num - 1)))
 		
 		xrdfs ${ROOT_URL} rm \
