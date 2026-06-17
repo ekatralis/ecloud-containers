@@ -48,24 +48,24 @@ transfer_outputs() (
 	set -euo pipefail
 	part_num=$(grep -oP 'present_simulation_part\s*=\s*\K\d+' simulation_status.sta)
 	part=$(printf "%02d" "$part_num")
-	xrdcp "${xrdcp_opts[@]}" "./bunch_evolution_${part}.h5" "${ROOT_URL}${SIM_PATH}"
-	xrdcp "${xrdcp_opts[@]}" "./slice_evolution_${part}.h5" "${ROOT_URL}${SIM_PATH}"
-	xrdcp "${xrdcp_opts[@]}" "./bunch_status_part${part}.h5" "${ROOT_URL}${SIM_PATH}"
+	xrdcp "${xrdcp_opts[@]}" -f "./bunch_evolution_${part}.h5" "${ROOT_URL}${SIM_PATH}"
+	xrdcp "${xrdcp_opts[@]}" -f "./slice_evolution_${part}.h5" "${ROOT_URL}${SIM_PATH}"
+	xrdcp "${xrdcp_opts[@]}" -f "./bunch_status_part${part}.h5" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./pyparislog.txt" "${ROOT_URL}${SIM_PATH}"
-	xrdcp "${xrdcp_opts[@]}" -f "./simulation_status.sta" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./sim_param.pkl" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./stdout.txt" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./stderr.txt" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./multigrid_config_dip.pkl" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./multigrid_config_dip.txt" "${ROOT_URL}${SIM_PATH}"
 	xrdcp "${xrdcp_opts[@]}" -f "./envinfo.txt" "${ROOT_URL}${SIM_PATH}"
+	xrdcp "${xrdcp_opts[@]}" -f "./simulation_status.sta" "${ROOT_URL}${SIM_PATH}"
 
 	
 	if (( part_num > 1 )); then
 		prev_part=$(printf "%02d" $((part_num - 1)))
 		
 		xrdfs ${ROOT_URL} rm \
-			"${SIM_PATH}bunch_status_part${prev_part}-1.h5"
+			"${SIM_PATH}bunch_status_part${prev_part}.h5"
 	fi
 	
 )
@@ -91,10 +91,7 @@ if (( script_exit == 0 || script_exit == 177 )); then
     transfer_status=$?
 
     if (( transfer_status != 0 )); then
-        echo "[JOB ERROR]: Output transfer failed. Transferring stdout and stderr logs for debugging."
-		xrdcp "${xrdcp_opts[@]}" -f "./stdout.txt" "${ROOT_URL}${SIM_PATH}"
-		xrdcp "${xrdcp_opts[@]}" -f "./stderr.txt" "${ROOT_URL}${SIM_PATH}"
-
+        echo "[JOB ERROR]: Output transfer failed"
         exit 1
     fi
 else
