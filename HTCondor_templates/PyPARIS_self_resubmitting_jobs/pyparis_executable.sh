@@ -92,7 +92,7 @@ apptainer exec  --env PYTHONNOUSERSITE=1 \
 				python -m PyPARIS.multiprocexec -n 8 sim_class=PyPARIS_sim_class.Simulation.Simulation \
 				>> stdout.txt 2>> stderr.txt
 script_exit=$?
-echo "$script_exit"
+echo "Simulation exited with code: $script_exit"
 
 if (( script_exit == 0 || script_exit == 177 )); then
     transfer_outputs
