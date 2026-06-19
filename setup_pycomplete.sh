@@ -27,8 +27,10 @@ cd ..
 
 cd PyPARIS
 git switch prevent_infinite_hangs_in_multiproc
+# prev commit 8a894ccb08b929ca926a618cbb7a576dc7ee7e47
+git checkout 8157a5fbc020f69fd0db84a720f94c2b34157768
 cd ..
 
 cd PyPARIS_sim_class
-git switch resubmit_from_container
+git switch resubmit_htcondor
 cd ..
