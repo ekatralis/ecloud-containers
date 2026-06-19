@@ -10,6 +10,12 @@ FAILED_LIST="failed_sims.txt"
 TOTAL=$(grep -cve '^\s*$' "$SIM_LIST")
 COUNT=0
 
+python -c "import os; import scipy.io"
+if [[ $? -ne 0 ]]; then
+    echo "Error: Python with scipy is required to run this script."
+    exit 1
+fi
+
 while IFS= read -r relpath; do
     [[ -z "$relpath" ]] && continue
 
