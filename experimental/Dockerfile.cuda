@@ -60,7 +60,7 @@ COPY --chown=eclouduser:eclouduser envs/${FLAVOR}.yaml /tmp/env.yaml
 RUN set -eux; \
     umask 002; \
     PIP_VERBOSE=1 micromamba create -y -p "$ENV_PREFIX" -f /tmp/env.yaml && \
-    micromamba install -y -p "$ENV_PREFIX" -c conda-forge cupy cuda-version=12.8 pyopencl ocl-icd-system libcudss && \
+    micromamba install -y -p "$ENV_PREFIX" -c conda-forge cupy cuda-version=12.8 pyopencl ocl-icd-system libcudss=0.7.1.4 && \
     micromamba run -p "$ENV_PREFIX" pip install nvmath-python && \
     micromamba clean -a -f -y && \
     # extra trimming
