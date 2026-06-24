@@ -16,21 +16,22 @@ for chroma in $(seq -w 0 5 25); do
         # echo $job_dir
         # We must submit from AFS, so we create a mirroring structure there
         JOB_MIRROR_DIR="${AFS_MIRROR_DIR}${job_dir}"
+        mkdir -p ${JOB_MIRROR_DIR}
         cp $BASE_DIR/htcondor_template/* ${JOB_MIRROR_DIR}/
-        cd ${MIRROR_DIR}
+        cd ${JOB_MIRROR_DIR}
         
         # Improve monitoring by changing name
         mv workflow.dag ${job}.dag
         # Point executable to the correct eos path
-        sed -i "\|^EOS_PATH=|c\EOS_PATH=${job_dir}" pyparis_executable.sh
-        sed -i "s|^output_destination.*|output_destination      = root://eosproject-e.cern.ch/${job_dir}|" htcondor.sub
+        sed -i "\|^EOS_PATH=\"/|c\EOS_PATH=\"${job_dir}\"" pyparis_executable.sh
+        sed -i "s|^output_destination.*|output_destination      = root://eosproject-e.cern.ch/${job_dir}/|" htcondor.sub
 
         cd - > /dev/null
 
         # Symlink to the mirror directory from the job directory
         ln -s ${JOB_MIRROR_DIR} ${job_dir}/submission_and_logs
 
-        Create a submission script
-        echo "cd ${JOB_MIRROR_DIR} && condor_submit_dag -batch-name ${job} ${job}.dag" >> $BASE_DIR/submit_all.sh'
+        # Create a submission script
+        echo "cd ${JOB_MIRROR_DIR} && condor_submit_dag -batch-name ${job} ${job}.dag" >> "$BASE_DIR/submit_all.sh"
     done
 done
