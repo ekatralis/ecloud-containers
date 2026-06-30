@@ -1,0 +1,16 @@
+executable              = /usr/bin/sleep
+arguments               = 1111111
+output 			        = $(ATTEMPT).$(ClusterId).$(ProcId).out
+error  			        = $(ATTEMPT).$(ClusterId).$(ProcId).err
+log                     = log.$(ClusterId)
+should_transfer_files   = YES
+transfer_input_files    = pyparis_executable.sh, root://eosproject-e.cern.ch//eos/project-e/ecloud-simulations/ekatrali/LHC_6.8TeV_MD_Instability_Thresholds/LHC_chm_ver.mat, root://eosproject-e.cern.ch//eos/project/e/ecloud-simulations/ekatrali/LHC_6.8TeV_MD_Instability_Thresholds/ecloud-containers-v0.0.6-cuda.sif
+output_destination      = root://eosproject-e.cern.ch//eos/insert/eos/path/
+when_to_transfer_output = ON_EXIT
+transfer_output_files   = ""
+MY.XRDCP_CREATE_DIR	    = true
++JobFlavour              = "tomorrow"
+RequestCpus = 8
+RequestGpus = 2
+
+queue 1
