@@ -22,13 +22,14 @@ This example was used to run a **15000** concurrent simulations in **under 24h**
 ## General setup
 Some general technical details which explain why our job submission setup:
 - AFS is a (somewhat legacy) shared filesystem, with more limited resources  &rarr; We should avoid using it as much as possible
-- EOS is a newer file system designed for large file transfers/accesses &rarr; We should avoid using it as much as possible
+- EOS is a newer file system designed for large file transfers/accesses &rarr; We should use it to transfer simulation data back and forth
 - CVMFS is a software distribution file system designed for frequent accesses &rarr; Using software/containers on CVMFS is ideal
-- HTCondor works as a intermediary between the submission nodes (lxplus) and the worker nodes (CERN's clusters that run the jobs)
-    - A shared FUSE mounted filesystem is currently a requirement for the jobs to run properly
+- HTCondor works as a intermediary between the submission nodes (lxplus) and the worker nodes (CERN's clusters that run the jobs). A **Scheduler** controls the negotiation process and matches jobs to workers.
+    - A shared FUSE mounted filesystem is a requirement for the jobs to run properly
     - On LxPlus nodes: AFS/EOS/CVMFS are all FUSE mounted
-    - On Submission nodes: Only AFS/CVMFS are FUSE mounted, EOS can only be accessed via the `xrootd` protocol
-    - Based on the above, the shared filesystem **must be** AFS
+    - On worker nodes: AFS/EOS/CVMFS are all FUSE mounted
+    - On Schedulers: Only AFS/CVMFS are FUSE mounted, EOS can only be accessed via the `xrootd` protocol
+    - Based on the above, the shared filesystem for all files specified in a submission file **must be** AFS
 - HTCondor creates a scratch directory for your jobs to run and can transfer files in and out of this directory as job input/output
 
 > [!NOTE]
