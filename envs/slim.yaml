@@ -11,6 +11,7 @@ dependencies:
   - cmake
   - pip
   - pip:
+      - 'pyecloud[tracking]==8.9.0'
       - mpi4py
       - numpy 
       - scipy 

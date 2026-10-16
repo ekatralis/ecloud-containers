@@ -72,18 +72,6 @@ RUN set -eux; \
         > /home/eclouduser/.bash_env_mamba \
     && echo 'source /home/eclouduser/.bash_env_mamba' >> /home/eclouduser/.bashrc
 
-COPY --chown=eclouduser:eclouduser ./setup_pycomplete.sh /home/eclouduser/setup_pycomplete.sh
-
-RUN set -eux; \
-    umask 002; \
-    mkdir -p /home/eclouduser/PyCOMPLETE && \
-    cd /home/eclouduser/PyCOMPLETE && \
-    /home/eclouduser/setup_pycomplete.sh && \
-    site_packages="$(micromamba run -p "$ENV_PREFIX" python -c 'import site; paths = site.getsitepackages(); print(paths[0] if paths else "")')" && \
-    echo "/home/eclouduser/PyCOMPLETE" >> "$site_packages/local-packages.pth" && \
-    echo "/home/eclouduser/PyCOMPLETE/PyHEADTAIL" >> "$site_packages/local-packages.pth" && \
-    rm -f /home/eclouduser/setup_pycomplete.sh
-
 FROM ubuntu:24.04 as runtime
 
 ARG UID=2020
@@ -110,9 +98,7 @@ RUN chown -R eclouduser:eclouduser /home/eclouduser && \
     mkdir -p /home/eclouduser/.local/bin && \
     chown -R eclouduser:eclouduser /home/eclouduser/.local && \
     mkdir -p /home/eclouduser/ecloud-env && \
-    chown -R eclouduser:eclouduser /home/eclouduser/ecloud-env && \
-    mkdir -p /home/eclouduser/PyCOMPLETE && \
-    chown -R eclouduser:eclouduser /home/eclouduser/PyCOMPLETE
+    chown -R eclouduser:eclouduser /home/eclouduser/ecloud-env
 
 USER eclouduser
 WORKDIR /home/eclouduser
@@ -144,7 +130,6 @@ RUN set -eux; \
     /home/eclouduser/.local/bin/micromamba --version 
 
 COPY --from=builder --chown=eclouduser:eclouduser /home/eclouduser/ecloud-env /home/eclouduser/ecloud-env
-COPY --from=builder --chown=eclouduser:eclouduser /home/eclouduser/PyCOMPLETE /home/eclouduser/PyCOMPLETE
 COPY --from=builder --chown=eclouduser:eclouduser /home/eclouduser/.bash_env_mamba /home/eclouduser/.bash_env_mamba
 COPY --from=builder --chown=eclouduser:eclouduser /home/eclouduser/.bashrc /home/eclouduser/.bashrc
 COPY --from=builder --chown=eclouduser:eclouduser /home/eclouduser/.conda /home/eclouduser/.conda
